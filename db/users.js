@@ -7,7 +7,7 @@ const SALT_COUNT = 10;
 // user functions
 async function createUser({ username, password }) {
 	const hashedPassword = await bcrypt.hash(password, SALT_COUNT);
-  let userToAdd = {username, hashedPassword}
+  const userToAdd = {username, hashedPassword}
 
 	try {
 		const {
