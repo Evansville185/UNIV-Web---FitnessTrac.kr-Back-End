@@ -3,9 +3,26 @@ const client = require("./client");
 async function addActivityToRoutine({
   routineId,
   activityId,
-  count,
   duration,
-}) {}
+  count,
+}) {
+  try {
+    const { rows: [routine_activity], } = await client.query(
+      `
+      INSERT INTO routine_activities("routineId", "activityId", duration, count)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT ("routineId", "activityId") DO NOTHING
+      RETURNING *;
+    `,
+      [routineId, activityId, count, duration]
+    );
+
+    return routine_activity;
+  } catch (error) {
+    console.error("Error creating routine_activities:", error);
+    throw error;
+  }
+}
 
 async function getRoutineActivityById(id) {}
 

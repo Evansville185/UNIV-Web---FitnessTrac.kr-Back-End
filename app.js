@@ -1,6 +1,6 @@
-require("dotenv").config()
-const express = require("express")
-const app = express()
+require("dotenv").config('../.env');
+const express = require("express");
+const app = express();
 
 // Setup your Middleware and API Router here
 
