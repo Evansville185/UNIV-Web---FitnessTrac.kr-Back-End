@@ -1,0 +1,7 @@
+DATABASE_URL=postgres://fitness_trainer:calories@localhost:4321/fitness-dev
+host port: 4321
+POSTGRES_USER:  fitness_trainer
+POSTGRES_PASSWORD: calories
+container save path
+/var/lib/postgresql/data
+C:\ProgramData\Docker\FitnessDB
