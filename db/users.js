@@ -55,12 +55,14 @@ async function getUserById(userId) {
 			rows: [user],
 		} = await client.query(
 			`
-    SELECT id, username, password
+    SELECT *
     FROM users
-    WHERE id=${userId}
-    `
+    WHERE id = $1;
+    `,
+      [userId]
 		);
-		if (!user) {
+		// return early if userId does not exist
+    if (!user) {
 			console.log(`${userId} does not exist`);
 			return null;
 		}
@@ -81,7 +83,7 @@ async function getUserByUsername(username) {
 			`
     SELECT *
     FROM users
-    WHERE username=$1
+    WHERE username = $1;
     `,
 			[username]
 		);
