@@ -49,7 +49,7 @@ async function getActivityById(activityId) {
 			`
       SELECT id, name, description
       FROM activities
-      WHERE id=$1;
+      WHERE id = $1;
     `,
 			[activityId]
 		);
@@ -73,7 +73,7 @@ async function getActivityByName(name) {
 			`
     SELECT *
     FROM activities
-    WHERE name=$1
+    WHERE name = $1
     `,
 			[name]
 		);
@@ -139,7 +139,7 @@ async function updateActivity({ id, ...fields }) {
 			`
       UPDATE activities
       SET ${setString}
-      WHERE id=${id}
+      WHERE id = $1
       RETURNING *;
       `,
 			Object.values(fields)

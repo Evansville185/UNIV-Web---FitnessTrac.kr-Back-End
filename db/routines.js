@@ -30,7 +30,7 @@ async function getRoutineById(routineId) {
 			`
       SELECT *
       FROM routines
-      WHERE id=$1;
+      WHERE id = $1;
     `,
 			[routineId]
 		);
@@ -176,7 +176,7 @@ async function updateRoutine({ id, ...fields }) {
 			`
         UPDATE routines
         SET ${setString}
-        WHERE id=${id}
+        WHERE id = ${id}
         RETURNING *;
         `,
 			Object.values(fields)
