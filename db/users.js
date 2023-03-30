@@ -35,7 +35,7 @@ async function getUser({ username, password }) {
 	try {
 		const user = await getUserByUsername(username);
 		const hashedPassword = user.password;
-		// passIsValid will be a boolean based on whether the password matches the hashed password
+		// password is valid will be a boolean based on whether the password matches the hashed password
 		const passwordsMatch = await bcrypt.compare(password, hashedPassword);
 		if (passwordsMatch) {
 			delete user.password;
