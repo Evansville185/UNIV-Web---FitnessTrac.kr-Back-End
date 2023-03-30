@@ -2,11 +2,12 @@ const client = require("./client");
 const bcrypt = require("bcrypt");
 
 // database functions
+const SALT_COUNT = 10;
 
 // user functions
 async function createUser({ username, password }) {
-	const SALT_COUNT = 10;
 	const hashedPassword = await bcrypt.hash(password, SALT_COUNT);
+  let userToAdd = {username, hashedPassword}
 
 	try {
 		const {
@@ -18,7 +19,7 @@ async function createUser({ username, password }) {
     ON CONFLICT (username) DO NOTHING
     RETURNING *;
     `,
-			[username, hashedPassword]
+			[userToAdd.username, userToAdd.hashedPassword]
 		);
 
 		return user;
@@ -35,8 +36,8 @@ async function getUser({ username, password }) {
 		const user = await getUserByUsername(username);
 		const hashedPassword = user.password;
 		// passIsValid will be a boolean based on whether the password matches the hashed password
-		const passIsValid = await bcrypt.compare(password, hashedPassword);
-		if (passIsValid) {
+		const passwordsMatch = await bcrypt.compare(password, hashedPassword);
+		if (passwordsMatch) {
 			delete user.password;
 			return user;
 		} else {

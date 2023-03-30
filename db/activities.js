@@ -95,29 +95,27 @@ async function attachActivitiesToRoutines(routines) {
 
 	try {
 		const { rows: activities } = await client.query(
-		`
+			`
 		SELECT activities.*, routine_activities.duration, routine_activities.count,
 		routine_activities.id AS "routineActivityId", routine_activities."routineId"
 		FROM activities
 		JOIN routine_activities ON routine_activities."activityId" = activities.id
 		WHERE routine_activities."routineId" IN (${attach
-		.map((routineId, index) => "$" + (index + 1))
-		.join(",")});
+			.map((routineId, index) => "$" + (index + 1))
+			.join(",")});
 		`,
-		attach
+			attach
 		);
 		for (const routine of routineArray) {
-		const addActivities = activities.filter(
-			(activity) => routine.id === activity.routineId
-		);
-		routine.activities = addActivities;
+			const addActivities = activities.filter((activity) => routine.id === activity.routineId);
+			routine.activities = addActivities;
 		}
 
 		return routineArray;
 	} catch (error) {
 		console.log("Error attaching activities to routines");
 		throw error;
-  }
+	}
 }
 
 async function updateActivity({ id, ...fields }) {
@@ -132,11 +130,12 @@ async function updateActivity({ id, ...fields }) {
 
 	// return early if called without fields
 	if (setString.length === 0) {
+		console.log("Failed to udpate, must edited activity field(s)");
 		return;
 	}
 	try {
-		//update any fields that need to be updated
-		const { rows } = await client.query(
+      //updates necessary fields
+		const { rows: [activity] } = await client.query(
 			`
       UPDATE activities
       SET ${setString}
@@ -146,7 +145,8 @@ async function updateActivity({ id, ...fields }) {
 			Object.values(fields)
 		);
 
-		return rows;
+        //returns single object(updated activity)
+		return activity;
 	} catch (error) {
 		console.error("Error updating activity:", error);
 		throw error;
