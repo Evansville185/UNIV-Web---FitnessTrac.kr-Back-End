@@ -1,4 +1,3 @@
-const e = require("cors");
 const client = require("./client");
 
 // database functions
@@ -130,22 +129,24 @@ async function updateActivity({ id, ...fields }) {
 
 	// return early if called without fields
 	if (setString.length === 0) {
-		console.log("Failed to udpate, must edited activity field(s)");
+		console.error("Failed to udpate, must edit activity field(s)");
 		return;
 	}
 	try {
-      //updates necessary fields
-		const { rows: [activity] } = await client.query(
+		//updates necessary field(s)
+		const {
+			rows: [activity],
+		} = await client.query(
 			`
       UPDATE activities
       SET ${setString}
-      WHERE id = $1
+      WHERE id = ${id}
       RETURNING *;
       `,
 			Object.values(fields)
 		);
 
-        //returns single object(updated activity)
+		//returns single object(updated activity)
 		return activity;
 	} catch (error) {
 		console.error("Error updating activity:", error);

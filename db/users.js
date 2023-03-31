@@ -21,6 +21,7 @@ async function createUser({ username, password }) {
     `,
 			[userToAdd.username, userToAdd.hashedPassword]
 		);
+		delete user.password;
 
 		return user;
 	} catch (error) {
@@ -59,10 +60,10 @@ async function getUserById(userId) {
     FROM users
     WHERE id = $1;
     `,
-      [userId]
+			[userId]
 		);
 		// return early if userId does not exist
-    if (!user) {
+		if (!user) {
 			console.log(`${userId} does not exist`);
 			return null;
 		}
@@ -75,19 +76,19 @@ async function getUserById(userId) {
 	}
 }
 
-async function getUserByUsername(username) {
+async function getUserByUsername(userName) {
 	try {
 		const {
 			rows: [user],
-		} = client.query(
+		} = await client.query(
 			`
     SELECT *
     FROM users
     WHERE username = $1;
     `,
-			[username]
+			[userName]
 		);
-
+		
 		return user;
 	} catch (error) {
 		console.error("Error finding user by username:", error);

@@ -48,12 +48,14 @@ async function getRoutineById(routineId) {
 
 async function getRoutinesWithoutActivities() {
 	try {
-		const { rows: routines } = await client.query(`
+		const { rows: routines } = await client.query(
+			`
       SELECT *
       FROM routines
       LEFT JOIN routine_activities ON routines.id = routine_activities."routineId"
-      WHERE routine_activities."activityId" IS NULL
-    `);
+      WHERE routine_activities."activityId" IS NULL;
+    `
+		);
 		return routines;
 	} catch (error) {
 		console.error("Error retrieving routines without activities:", error);
@@ -63,11 +65,9 @@ async function getRoutinesWithoutActivities() {
 
 async function getAllRoutines() {
 	try {
-		const {
-			rows: [routines],
-		} = await client.query(
+		const { rows: routines } = await client.query(
 			`
-      SELECT routines.*, user.username AS creatorName
+      SELECT routines.*, users.username AS "creatorName"
       FROM routines
       JOIN users ON routines."creatorId" = users.id
       `
@@ -84,7 +84,7 @@ async function getAllPublicRoutines() {
 	try {
 		const { rows: routines } = await client.query(
 			`
-      SELECT routines.*, users.username AS creatorName
+      SELECT routines.*, users.username AS "creatorName"
       FROM routines
       JOIN users ON routines."creatorId" = users.id
       WHERE "isPublic" = true;
@@ -102,7 +102,7 @@ async function getAllRoutinesByUser({ username }) {
 	try {
 		const { rows: routines } = await client.query(
 			`
-      SELECT routines.*, users.username AS creatorName
+      SELECT routines.*, users.username AS "creatorName"
       FROM routines
       JOIN users ON routines."creatorId" = users.id
       WHERE username = $1
@@ -121,9 +121,9 @@ async function getPublicRoutinesByUser({ username }) {
 	try {
 		const { rows: routines } = await client.query(
 			`
-      SELECT routines.*, users.username AS creatorName
+      SELECT routines.*, users.username AS "creatorName"
       FROM routines
-      JOIN users on routines."creatorId" = user.id
+      JOIN users on routines."creatorId" = users.id
       WHERE username = $1 AND "isPublic" = true;
       `,
 			[username]
@@ -140,10 +140,10 @@ async function getPublicRoutinesByActivity({ id }) {
 	try {
 		const { rows: routines } = await client.query(
 			`
-      SELECT routines.*, users.username AS creatorName
+      SELECT routines.*, users.username AS "creatorName"
       FROM routines
       JOIN users ON routines."creatorId" = users.id
-      JOIN routine_activities ON routines_activities."routineId" = routines.id
+      JOIN routine_activities ON routine_activities."routineId" = routines.id
       WHERE routines."isPublic" = true AND routine_activities."activityId" = $1;
       `,
 			[id]
@@ -164,12 +164,12 @@ async function updateRoutine({ id, ...fields }) {
 
 	// return early if called without fields
 	if (setString.length === 0) {
-		console.log("Failed to udpate, must edit routine field(s)");
+		console.error("Failed to udpate, must edit routine field(s)");
 		return;
 	}
 
 	try {
-		//updates necessary fields
+		// updates necessary field(s)
 		const {
 			rows: [routine],
 		} = await client.query(
@@ -182,7 +182,7 @@ async function updateRoutine({ id, ...fields }) {
 			Object.values(fields)
 		);
 
-		//returns single object(updated routine)
+		// returns single object(updated routine)
 		return routine;
 	} catch (error) {
 		console.error("Error updating routine:", error);
@@ -191,29 +191,31 @@ async function updateRoutine({ id, ...fields }) {
 }
 
 async function destroyRoutine(id) {
-  try {
-    await client.query(
-      `
+	try {
+		await client.query(
+			`
       DELETE FROM routine_activities
       WHERE "routineId" = $1
       RETURNING *;
       `,
-        [id]
-      );
-      const { rows: [routine] } = await client.query(
-        `
+			[id]
+		);
+		const {
+			rows: [routine],
+		} = await client.query(
+			`
         DELETE FROM routines
         WHERE id = $1
         RETURNING *;
         `,
-          [id]
-        );
+			[id]
+		);
 
-        return routine;
-  } catch (error) {
-    console.error("Error deleting routine:", error);
-    throw error;
-  }
+		return routine;
+	} catch (error) {
+		console.error("Error deleting routine:", error);
+		throw error;
+	}
 }
 
 module.exports = {
