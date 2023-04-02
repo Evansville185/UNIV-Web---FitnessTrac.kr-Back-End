@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = process.env;
 const { createUser, getUserByUsername } = require("../db");
+const { requiredUser } = require('./utils');
 
 usersRouter.use((req, res, next) => {
 	console.log("A request s being made to /users");
