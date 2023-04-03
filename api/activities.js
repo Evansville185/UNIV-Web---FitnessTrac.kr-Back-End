@@ -10,16 +10,6 @@ activitiesRouter.use((req, res, next) => {
 // GET /api/activities/:activityId/routines
 
 // GET /api/activities
-activitiesRouter.get("/", async (req, res, next) => {
-	try {
-		const activities = await getAllActivities();
-		if (activities) {
-			res.send(activities);
-		}
-	} catch ({ name, message }) {
-		next({ name, message });
-	}
-});
 
 // POST /api/activities (*)
 
