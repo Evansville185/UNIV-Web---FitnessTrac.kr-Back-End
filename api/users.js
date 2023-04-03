@@ -11,8 +11,6 @@ const {
 	getPublicRoutinesByUser,
 	getAllRoutinesByUser,
 } = require("../db");
-// const { requiredUser } = require('./utils')
-const app = express();
 
 usersRouter.use((req, res, next) => {
 	console.log("A request s being made to /users");
