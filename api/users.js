@@ -4,7 +4,13 @@ const usersRouter = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = process.env;
-const { createUser, getUserByUsername, getUserById } = require("../db");
+const {
+	createUser,
+	getUserByUsername,
+	getUserById,
+	getPublicRoutinesByUser,
+	getAllRoutinesByUser,
+} = require("../db");
 // const { requiredUser } = require('./utils')
 const app = express();
 
@@ -13,28 +19,6 @@ usersRouter.use((req, res, next) => {
 
 	next();
 });
-
-// const authenticate = (req, res, next) => {
-// 	const authHeader = req.header['authorization'];
-// 	if(!authHeader) {
-// 		res.send({
-// 			error: "UnauthorizationError",
-// 			name: "UnauthorizationError",
-// 			message: "Token invalid",
-// 		});
-
-// 		const token = authHeader.split(' ')[1];
-// 		try {
-// 			const decode = jwt.verify(token, JWT_SECRET);
-// 			req.user = decode;
-			
-// 			next();
-// 		} catch ({ name, message }) {
-// 			next({name, message});
-// 		}
-// 	}
-// }
-
 
 // POST /api/users/register
 // Create a new user. Require username and password, and hash password before saving user to DB. Require all passwords to be at least 8 characters long.
@@ -119,8 +103,8 @@ usersRouter.post("/login", async (req, res, next) => {
 			);
 			token;
 
-			const verifyToken = jwt.verify(token, JWT_SECRET);
-			verifyToken;
+			const decode = jwt.verify(token, JWT_SECRET);
+			decode;
 
 			res.send({
 				user: {
@@ -143,101 +127,77 @@ usersRouter.post("/login", async (req, res, next) => {
 
 // GET /api/users/me (*)
 //*Send back the logged-in user's data if a valid token is supplied in the header.
-usersRouter.get('/me', async (req, res, next) => {
-	const authHeader = req.headers['Authorization'];
-	if(!authHeader) {
-		next({ 
-			name: "UnauthorizationError",
-			message: "Authorization header missing"
+const authenticate = (req, res, next) => {
+	const authHeader = req.headers.authorization;
+	if (!authHeader) {
+		res.status(401).send({
+			error: "UnauthorizationError",
+			name: "401 - Unauthorized",
+			message: "You must be logged in to perform this action",
 		});
+	} else {
+		const token = authHeader.split(" ")[1];
+		try {
+			const decode = jwt.verify(token, JWT_SECRET);
+			req.user = decode;
+			next();
+		} catch ({ name, message }) {
+			next({ name, message });
+		}
 	}
-	const token = authHeader.split(' ')[1];
+};
+
+usersRouter.get("/me", authenticate, async (req, res, next) => {
+	//*middleware func 'authenticate' adds property 'user' to the 'req' obj with the decoded data from JWT token
+	const userId = req.user.id;
 	try {
-		const decode = jwt.verify(token, JWT_SECRET);
-		const userId = decode.id;
+		//*'getuserbyid'  func retrieves the user's info from the db using 'userId' value obtain from 'req' obj and sends the user's info back to client in response body
 		const user = await getUserById(userId);
-		if(!user) {
-			next({ 
-				name: "UserNotFound",
-				message: "User not found"
+		if (!user) {
+			res.send({
+				name: "UserNotFoundError",
+				message: "User not found",
 			});
 		}
-		res.send(user);
-	} catch ({ name, messsage }) {
-		res.send({ name: "InvalidToken", 
-		message: "Invalid token",
-	});
+		res.send({
+			id: user.id,
+			username: user.username,
+		});
+	} catch ({ name, message }) {
+		next({ name, message });
 	}
 });
 
 // GET /api/users/:username/routines (*)
 //*Get a list of public routines for a particular user.
+usersRouter.get("/:username/routines", async (req, res, next) => {
+	const { username } = req.params;
+	let routines;
+
+	try {
+		const publicRoutines = await getPublicRoutinesByUser({ username });
+
+		const authHeader = req.headers.authorization;
+		if (!authHeader) {
+			routines = publicRoutines;
+		} else {
+			const token = authHeader.split(" ")[1];
+			const decoded = jwt.verify(token, JWT_SECRET);
+			const userId = decoded.id;
+			const user = await getUserById(userId);
+
+			if (user.username !== username) {
+				routines = publicRoutines;
+			} else {
+				const userRoutines = await getAllRoutinesByUser({ username });
+				routines = publicRoutines && userRoutines;
+			}
+		}
+
+		res.send(routines);
+	} catch ({ name, message }) {
+		next({ name, message });
+	}
+});
 
 module.exports = usersRouter;
-
-
-// usersRouter.get("/me", async (req, res, next) => {
-// 	const authHeader = req.headers['Authorization']
-
-// 	if (!authHeader) {
-// 		return res.send({
-// 			name: "UnathorizationError",
-// 			message: "Token not valid",
-// 		});
-// 	}
-// 	//*Extract the token from the authorization header
-// 	const token = authHeader.split(" ")[1];
-
-// 		try {
-// 			//*Verify the token using the JWT_SECRET
-// 			const decodeToken = jwt.verify(token, JWT_SECRET);
-
-// 			//*Get the user id from the decoded token
-// 			const userId = decodeToken.id;
-
-// 			//*Get the user data by id from the database
-// 			const user = await getUserById(userId);
-
-// 			//*If user is not found, send back error response
-// 			if (!user) {
-// 				return res.send({
-// 					error: "UserNotFoundError",
-// 					message: "User not found",
-// 				});
-// 			} else {
-
-// 			//*Send the user data as the response body
-// 			res.send({
-// 				id: user.id,
-// 				username: user.username,
-// 			});
-// 		}
-// 		} catch ({ name, message }) {
-// 			next({ name, message });
-// 		}
-// });
-
-// usersRouter.use((req, res, next) => {
-// 	if (req.user) {
-// 		console.log("User is set:", req.user);
-// 	}
-
-// 	next();
-// });
-//-----------------------
-// usersRouter.get('/me', authenticate, async (req, res, next) => {
-// 	const userId = req.user.id;
-// 	try {
-// 		const user = await getUserById(userId);
-// 		if(!user) {
-// 			res.send({
-// 				name: "UserNotFoundError",
-// 				message: "User not found"
-// 			});
-// 		}
-
-// 		res.send(user);
-// 	} catch ({ name, message }){
-// 		next({ name, message });
-// 	}
-// });

@@ -18,13 +18,13 @@ app.listen(function () {
     console.log('CORS-enabled web server listening on port 3000')
   })
 
-app.use((req, res, next) => {
-    console.log("---------BodyLog START---------");
-    console.log(req.body);
-    console.log("---------BodyLog END---------");
+// app.use((req, res, next) => {
+//     console.log("---------BodyLog START---------");
+//     console.log(req.body);
+//     console.log("---------BodyLog END---------");
 
-    next();
-})
+//     next();
+// })
 
 // Setup your Middleware and API Router here
 const apiRouter = require('./api');
