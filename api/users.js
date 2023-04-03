@@ -14,7 +14,6 @@ const {
 
 usersRouter.use((req, res, next) => {
 	console.log("A request s being made to /users");
-
 	next();
 });
 
