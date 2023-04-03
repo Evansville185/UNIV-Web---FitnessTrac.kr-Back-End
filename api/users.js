@@ -17,6 +17,7 @@ usersRouter.use((req, res, next) => {
 	next();
 });
 
+
 // POST /api/users/register
 // Create a new user. Require username and password, and hash password before saving user to DB. Require all passwords to be at least 8 characters long.
 // Throw errors for duplicate username, or password-too-short.

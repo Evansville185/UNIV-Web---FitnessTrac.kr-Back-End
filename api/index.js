@@ -3,7 +3,6 @@ const router = express.Router();
 
 //jwt request setup------------------------------------------------------------
 // set `req.user` if necessary
-//might not need - verify
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = process.env;
 const { getUserById } = require("../db");
