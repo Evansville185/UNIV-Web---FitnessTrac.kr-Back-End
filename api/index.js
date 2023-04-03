@@ -71,7 +71,7 @@ const routineActivitiesRouter = require("./routineActivities");
 router.use("/routine_activities", routineActivitiesRouter);
 
 //*API ERROR handler
-router.use((req, res, next) => {
+router.use((req, res) => {
 	res.status(404).send({
 		name: "404 - PageNotFound",
 		message: "Invalid endpoint, navigate to a valid endpoint below...",
