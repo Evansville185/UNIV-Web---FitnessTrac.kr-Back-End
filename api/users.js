@@ -146,26 +146,18 @@ usersRouter.get("/me", requiredUser, async (req, res, next) => {
 
 // GET /api/users/:username/routines (*)
 //*Get a list of public routines for a particular user.
-usersRouter.get("/:username/routines", async (req, res, next) => {
+usersRouter.get("/:username/routines", requiredUser, async (req, res, next) => {
 	const { username } = req.params;
 	let routines;
 
 	try {
 		const publicRoutines = await getPublicRoutinesByUser({ username });
 
-		const authHeader = req.headers.authorization;
-		if (!authHeader) {
+		if (req.user.username !== username) {
 			routines = publicRoutines;
 		} else {
-			const token = authHeader.split(" ")[1];
-			const decoded = jwt.verify(token, JWT_SECRET);
-
-			if (decoded.username !== username) {
-				routines = publicRoutines;
-			} else {
-				const userRoutines = await getAllRoutinesByUser({ username });
-				routines = userRoutines;
-			}
+			const userRoutines = await getAllRoutinesByUser({ username });
+			routines = userRoutines;
 		}
 
 		res.send(routines);

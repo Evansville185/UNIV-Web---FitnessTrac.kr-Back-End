@@ -37,6 +37,11 @@ activitiesRouter.get("/:activityId/routines", async (req, res, next) => {
 	}
 });
 
+/*Start defining an Express router and importing the necessary functions from the database module.
+We create a GET route for /api/activities/:activityId/routines, which takes the activityId parameter from the URL.
+Inside the route handler, we first check if the activity exists by calling getActivityById with the activityId. If it doesn't exist, we return a 404 error with a custom message and the DoesNotExist error type.
+If the activity exists, we call getPublicRoutinesByActivity with the activity object to retrieve all public routines that include the activity. We then send the results as a JSON response.
+Finally, we handle any errors that might occur and pass them to the Express error handling middleware with next(error) */
 
 // GET /api/activities
 activitiesRouter.get("/", async (req, res, next) => {
