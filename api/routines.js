@@ -123,9 +123,11 @@ routinesRouter.post("/:routineId/activities", async (req, res, next) => {
 		//*The activityId property is not available on the array itself, but on each of its elements
 		//*Using find() method to check whether any elements in array have the same activityId trying to add to the routine
 		const existingActivity = checkActivities.find((activity) => activity.activityId === activityId);
+
 		console.log("LOOK HERE FIRST", routineId);
 		console.log("LOOK HERE SECOND", checkRoutineId);
 		console.log("LOOK HERE THIRD", checkActivities);
+		
 		if (!checkRoutineId) {
 			res.status(404).send({
 				error: "UnauthorizedAddError",

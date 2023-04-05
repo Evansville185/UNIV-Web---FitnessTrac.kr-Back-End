@@ -37,7 +37,6 @@ activitiesRouter.get("/:activityId/routines", async (req, res, next) => {
 	}
 });
 
-
 // GET /api/activities
 activitiesRouter.get("/", async (req, res, next) => {
 	try {
