@@ -128,7 +128,7 @@ usersRouter.get("/me", requiredUser, async (req, res, next) => {
 	//*middleware func 'requiredUser' adds property 'user' to the 'req' obj with the decoded data from JWT token
 	const { id: userId } = req.user;
 	try {
-		//*'getuserbyid'  func retrieves the user's info from the db using 'userId' value obtain from 'req' obj and sends the user's info back to client in response body
+		//*'getuserbyid' func retrieves the user's info from the db using 'userId' value obtain from 'req' obj and sends the user's info back to client in response body
 		const user = await getUserById(userId);
 		if (!user) {
 			res.send({
