@@ -31,15 +31,3 @@ const apiRouter = require("./api");
 app.use("/api", apiRouter);
 
 module.exports = app;
-
-/*
-1.Load environment variables from .env file (optional)
-2.Create an instance of Express and define the app variable
-3.Load the morgan and cors middleware functions
-4.Load the express.json() middleware function to parse the JSON body of incoming requests
-5.Connect to the database using the client object
-6.Start the server and listen on port 80
-7.Load the API routes using the apiRouter
-8.Export the app object for use in other modules
-This order is generally good practice, because it ensures that the middleware functions are applied before any routes or API handlers are defined. Additionally, the cors middleware function is loaded before the express.json() middleware function, which is important because cors can modify the request headers and it's best to apply it first.
-*/
