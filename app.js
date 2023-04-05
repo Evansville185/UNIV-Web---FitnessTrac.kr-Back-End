@@ -13,7 +13,7 @@ app.use(express.json());
 const { client } = require("./db");
 client.connect();
 
-//*displays active port -- moved to server.js due to interferences, even if running on different ports
+//*displays active port -- moved to server.js due to console.log warnings thrown during testing, even if running on different ports
 // app.listen(3000, function () {
 //   console.log('CORS-enabled web server listening on port 3000')
 // })
