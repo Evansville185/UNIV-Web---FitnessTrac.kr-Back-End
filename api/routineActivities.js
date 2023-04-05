@@ -24,7 +24,9 @@ routineActivitiesRouter.patch("/:routineActivityId", requiredUser, async (req, r
 		const routineActivity = await getRoutineActivityById(routineActivityId);
 		//*Use 'routineActivity' table to reference 'routineId' to use for 'getRoutineId()' param
 		const routine = await getRoutineById(routineActivity.routineId);
-
+		console.log("PATH RA ID", routineActivityId);
+		console.log("RA TABLE", routineActivity);
+		console.log("Routine TABLE", routine);
 		if (!routineActivity) {
 			res.status(403).send({
 				error: "UnauthorizedDeleteError",

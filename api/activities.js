@@ -1,5 +1,6 @@
 const express = require("express");
 const activitiesRouter = express.Router();
+const { requiredUser } = require("./utils");
 const {
 	createActivity,
 	getActivityById,
@@ -8,7 +9,6 @@ const {
 	getPublicRoutinesByActivity,
 	updateActivity,
 } = require("../db");
-const { requiredUser } = require("./utils");
 
 // activitiesRouter.use((req, res, next) => {
 // 	console.log("A request s being made to /activities");
@@ -36,6 +36,7 @@ activitiesRouter.get("/:activityId/routines", async (req, res, next) => {
 		next({ name, message });
 	}
 });
+
 
 // GET /api/activities
 activitiesRouter.get("/", async (req, res, next) => {
@@ -73,7 +74,7 @@ activitiesRouter.post("/", requiredUser, async (req, res, next) => {
 });
 
 // PATCH /api/activities/:activityId (*)
-activitiesRouter.patch("/:activityId", async (req, res, next) => {
+activitiesRouter.patch("/:activityId", requiredUser, async (req, res, next) => {
 	const { activityId } = req.params;
 	const { name, description } = req.body;
 
