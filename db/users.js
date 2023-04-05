@@ -7,7 +7,7 @@ const SALT_COUNT = 10;
 // user functions
 async function createUser({ username, password }) {
 	const hashedPassword = await bcrypt.hash(password, SALT_COUNT);
-	const userToAdd = { username, hashedPassword };
+	const create = { username, hashedPassword };
 
 	try {
 		const {
@@ -19,7 +19,7 @@ async function createUser({ username, password }) {
     ON CONFLICT (username) DO NOTHING
     RETURNING *;
     `,
-			[userToAdd.username, userToAdd.hashedPassword]
+			[create.username, create.hashedPassword]
 		);
 		delete user.password;
 
@@ -88,7 +88,7 @@ async function getUserByUsername(userName) {
     `,
 			[userName]
 		);
-		
+
 		return user;
 	} catch (error) {
 		console.error("Error finding user by username:", error);
