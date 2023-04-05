@@ -24,8 +24,9 @@ const {
 usersRouter.post("/register", async (req, res, next) => {
 	const { username, password } = req.body;
 
-	const _user = await getUserByUsername(username);
-	if (_user) {
+	//*Check username if already exist
+	const checkUsername = await getUserByUsername(username);
+	if (checkUsername) {
 		res.send({
 			error: "UsernameExistsError",
 			message: `User ${username} is already taken.`,
@@ -81,7 +82,7 @@ usersRouter.post("/login", async (req, res, next) => {
 	if (!username || !password) {
 		res.send({
 			name: "MissingCredentialsError",
-			message: "Please input both a username and password",
+			message: "Please input a username or/and password",
 		});
 	}
 
@@ -90,8 +91,8 @@ usersRouter.post("/login", async (req, res, next) => {
 		const hashedPassword = user.password;
 		const passwordsMatch = await bcrypt.compare(password, hashedPassword);
 
+		//*if condition true, create token for user
 		if (user && passwordsMatch) {
-			//*if condition true, create token for user
 			const token = jwt.sign(
 				{
 					id: user.id,
@@ -113,7 +114,7 @@ usersRouter.post("/login", async (req, res, next) => {
 		} else {
 			next({
 				name: "IncorrectCredentialsError",
-				message: "Username or password is incorrect",
+				message: "Username or/and password is incorrect",
 			});
 		}
 	} catch ({ name, message }) {
@@ -125,7 +126,7 @@ usersRouter.post("/login", async (req, res, next) => {
 //*Send back the logged-in user's data if a valid token is supplied in the header.
 usersRouter.get("/me", requiredUser, async (req, res, next) => {
 	//*middleware func 'requiredUser' adds property 'user' to the 'req' obj with the decoded data from JWT token
-	const userId = req.user.id;
+	const { id: userId } = req.user;
 	try {
 		//*'getuserbyid'  func retrieves the user's info from the db using 'userId' value obtain from 'req' obj and sends the user's info back to client in response body
 		const user = await getUserById(userId);
