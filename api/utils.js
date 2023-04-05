@@ -1,13 +1,46 @@
-//helper function stating user is not logged in
-function requireUser(req, res, next) {
-    if(!req.user) {
-        next({
-            name: "MissingUserError",
-            message: "You must be logged in to perform this action",
-        });
-    }
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = process.env;
+const { getUserById } = require("../db");
 
-    next();
-}
+//*Middleware helper function for required log-in
+const requiredUser = async (req, res, next) => {
+	//*Sets variable of header upon request
+	const authHeader = req.headers.authorization;
 
-module.exports = { requireUser };
+	//*Sends error respons if request not sent with header
+	if (!authHeader) {
+		res.status(401).send({
+			error: "UnauthorizationError",
+			name: "401 - Unauthorized",
+			message: "You must be logged in to perform this action",
+		});
+	} else {
+		//*Extract token by splitting header object and taking 2nd array as token value
+		const token = authHeader.split(" ")[1];
+		try {
+			//*Verify token using 'JWT_SECRET'
+			const decoded = jwt.verify(token, JWT_SECRET);
+
+			//*Assign value of id from decoded token
+			const userId = decoded.id;
+			//*New const set and using 'userId' as param for fetching data 'gettUserById'
+			//*Check if 'user if in DB, and if not, if statement to handle error
+			const user = await getUserById(userId);
+			if (!user) {
+				res.send({
+					error: "UnauthorizedError",
+					message: "User not found",
+					name: "UnauthorizedError",
+				});
+			}
+
+			//*Re-assigns 'user' value as 'req.user' for client request to be identified as logged in user
+			req.user = user;
+			next();
+		} catch ({ name, message }) {
+			next({ name, message });
+		}
+	}
+};
+
+module.exports = { requiredUser };

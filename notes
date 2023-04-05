@@ -12,3 +12,67 @@ curl http://localhost:3000/api/users/register -H "Content-Type: application/json
 
 login
 curl http://localhost:3000/api/users/login -H "Content-Type: application/json" -X POST -d '{"username": "trifecta", "password": "starstruck"}'
+
+
+/*
+routinesRouter.post("/:routineId/activities", async (req, res, next) => {
+	const { routineId } = req.params;
+	const { activityId, duration, count } = req.body;
+
+	try {
+		// const [ routine, activity ] = await Promise.all([
+		// 	getRoutineById(routineId),
+		// 	getActivityById(activityId),
+		// ]);
+		const checkRoutineId = await getRoutineById(routineId);
+		const checkActivities = await getRoutineActivitiesByRoutine({ id: routineId });
+		const existingActivity = checkActivities.find((activity) => activity.activityId === activityId);
+		console.log("LOOK HERE FIRST", routineId);
+		console.log("LOOK HERE SECOND", checkRoutineId);
+		console.log("LOOK HERE THIRD", checkActivities);
+		if (!checkRoutineId) {
+			res.status(404).send({
+				error: "UnauthorizedAddError",
+				message: "Routine does not exist",
+				name: "RoutineDoesNotExist",
+			});
+		}
+		// if (checkRA.some((RA) => RA.routineId === routineId && RA.activityId === activityId)) {
+		else if (checkRoutineId && existingActivity) {
+			res.send({
+				error: "DuplicateError",
+				message: `Activity ID ${activityId} already exists in Routine ID ${routineId}`,
+				name: "CannotAddDuplicateActivity",
+			});
+		}
+		const newRoutineActivity = await addActivityToRoutine({
+			routineId,
+			activityId,
+			duration,
+			count,
+		});
+
+		res.send(newRoutineActivity);
+	} catch ({ name, message }) {
+		next({ name, message });
+	}
+});
+*/
+
+/*
+The route /routineId/activities is defined using routinesRouter.post() method. This route takes the routineId parameter from the URL and expects a JSON object containing activityId, duration, and count in the request body.
+
+Inside the route handler function, the routineId, activityId, duration, and count values are extracted from the request object.
+
+The getRoutineById() function is called with routineId as the parameter to check if the routine exists.
+
+The getRoutineActivitiesByRoutine() function is called with {id: routineId} as the parameter to get all the activities associated with the given routine.
+
+The find() method is called on the returned checkActivities array to check if an activity with the given activityId already exists in the routine. If it exists, the server sends an error response to the client.
+
+If the routine doesn't exist or the activity doesn't exist in the routine, the addActivityToRoutine() function is called with the provided routineId, activityId, duration, and count.
+
+If the new activity is added successfully, the server sends a response to the client containing the details of the new activity.
+
+If any error occurs during the execution of the code, it is caught by the catch block and the error message is sent back to the client using the next() function.
+*/

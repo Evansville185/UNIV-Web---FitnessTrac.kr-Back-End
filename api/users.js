@@ -4,19 +4,19 @@ const usersRouter = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = process.env;
+const { requiredUser } = require("./utils");
 const {
 	createUser,
-	getUserByUsername,
-	getUserById,
-	getPublicRoutinesByUser,
 	getAllRoutinesByUser,
+	getUserById,
+	getUserByUsername,
+	getPublicRoutinesByUser,
 } = require("../db");
 
-usersRouter.use((req, res, next) => {
-	console.log("A request s being made to /users");
-	next();
-});
-
+// usersRouter.use((req, res, next) => {
+// 	console.log("A request s being made to /users");
+// 	next();
+// });
 
 // POST /api/users/register
 // Create a new user. Require username and password, and hash password before saving user to DB. Require all passwords to be at least 8 characters long.
@@ -77,7 +77,7 @@ usersRouter.post("/register", async (req, res, next) => {
 usersRouter.post("/login", async (req, res, next) => {
 	const { username, password } = req.body;
 
-	//*request must ave both
+	//*request must have both
 	if (!username || !password) {
 		res.send({
 			name: "MissingCredentialsError",
@@ -99,10 +99,8 @@ usersRouter.post("/login", async (req, res, next) => {
 				},
 				JWT_SECRET
 			);
-			token;
-
+			//*verify the token
 			const decode = jwt.verify(token, JWT_SECRET);
-			decode;
 
 			res.send({
 				user: {
@@ -125,28 +123,8 @@ usersRouter.post("/login", async (req, res, next) => {
 
 // GET /api/users/me (*)
 //*Send back the logged-in user's data if a valid token is supplied in the header.
-const authenticate = (req, res, next) => {
-	const authHeader = req.headers.authorization;
-	if (!authHeader) {
-		res.status(401).send({
-			error: "UnauthorizationError",
-			name: "401 - Unauthorized",
-			message: "You must be logged in to perform this action",
-		});
-	} else {
-		const token = authHeader.split(" ")[1];
-		try {
-			const decode = jwt.verify(token, JWT_SECRET);
-			req.user = decode;
-			next();
-		} catch ({ name, message }) {
-			next({ name, message });
-		}
-	}
-};
-
-usersRouter.get("/me", authenticate, async (req, res, next) => {
-	//*middleware func 'authenticate' adds property 'user' to the 'req' obj with the decoded data from JWT token
+usersRouter.get("/me", requiredUser, async (req, res, next) => {
+	//*middleware func 'requiredUser' adds property 'user' to the 'req' obj with the decoded data from JWT token
 	const userId = req.user.id;
 	try {
 		//*'getuserbyid'  func retrieves the user's info from the db using 'userId' value obtain from 'req' obj and sends the user's info back to client in response body
@@ -181,14 +159,12 @@ usersRouter.get("/:username/routines", async (req, res, next) => {
 		} else {
 			const token = authHeader.split(" ")[1];
 			const decoded = jwt.verify(token, JWT_SECRET);
-			const userId = decoded.id;
-			const user = await getUserById(userId);
 
-			if (user.username !== username) {
+			if (decoded.username !== username) {
 				routines = publicRoutines;
 			} else {
 				const userRoutines = await getAllRoutinesByUser({ username });
-				routines = publicRoutines && userRoutines;
+				routines = userRoutines;
 			}
 		}
 
