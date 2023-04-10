@@ -23,7 +23,7 @@ activitiesRouter.get("/:activityId/routines", async (req, res, next) => {
 		//*Checking if activity exists
 		const activity = await getActivityById(activityId);
 		if (!activity) {
-			res.send({
+			res.status(400).send({
 				error: "ActivityNotFoundError",
 				message: `Activity ${activityId} not found`,
 				name: "ActivityDoesNotExist",

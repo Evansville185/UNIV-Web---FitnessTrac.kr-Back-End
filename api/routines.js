@@ -34,10 +34,21 @@ routinesRouter.post("/", requiredUser, async (req, res, next) => {
 	const { id: userId } = req.user;
 
 	try {
+		//*Checking if routine exists
+		const routines = await getAllRoutines();
+		const routineExists = routines.find(routine => routine.name === name);
+		if (routineExists) {
+			res.send({
+				error: "DuplicateRoutineNameError",
+				message: `A routine with name ${name} already exists`,
+				name: "DuplicateRoutineName",
+			});
+	} else {
 		//*Set 'creatorId' as id from middleware, to be the same id of user logged in
 		const newRoutine = await createRoutine({ creatorId: userId, isPublic, name, goal });
 
 		res.send(newRoutine);
+		}
 	} catch ({ name, message }) {
 		next({ name, message });
 	}
@@ -90,7 +101,7 @@ routinesRouter.delete("/:routineId", requiredUser, async (req, res, next) => {
 		const deleteRoutineId = await getRoutineById(routineId);
 		//*Check if routineId exists in DB and if logged in user matches 'creatorId', proceed
 		if (!deleteRoutineId) {
-			res.status(403).send({
+			res.status(400).send({
 				error: "UnauthorizedDeleteError",
 				message: "Routine does not exist",
 				name: "RoutineDoesNotExist",
@@ -127,9 +138,9 @@ routinesRouter.post("/:routineId/activities", async (req, res, next) => {
 		console.log("LOOK HERE FIRST", routineId);
 		console.log("LOOK HERE SECOND", checkRoutineId);
 		console.log("LOOK HERE THIRD", checkActivities);
-		
+
 		if (!checkRoutineId) {
-			res.status(404).send({
+			res.status(400).send({
 				error: "UnauthorizedAddError",
 				message: "Routine does not exist",
 				name: "RoutineDoesNotExist",
@@ -151,6 +162,19 @@ routinesRouter.post("/:routineId/activities", async (req, res, next) => {
 		});
 
 		res.send(newRoutineActivity);
+	} catch ({ name, message }) {
+		next({ name, message });
+	}
+});
+
+//*Own path to look at routineById--------------------------
+routinesRouter.get("/:routineId", async (req, res, next) => {
+	const { routineId } = req.params;
+
+	try {
+		const routines = await getRoutineById(routineId);
+
+		res.send(routines);
 	} catch ({ name, message }) {
 		next({ name, message });
 	}

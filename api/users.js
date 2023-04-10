@@ -66,8 +66,8 @@ usersRouter.post("/register", async (req, res, next) => {
 				token: token,
 				message: "Thank you for signing up!",
 			});
-		} catch ({ name, message }) {
-			next({ name, message });
+		} catch (error) {
+			next(error);
 		}
 	}
 });
@@ -78,47 +78,63 @@ usersRouter.post("/register", async (req, res, next) => {
 usersRouter.post("/login", async (req, res, next) => {
 	const { username, password } = req.body;
 
-	//*request must have both
-	if (!username || !password) {
-		res.send({
-			name: "MissingCredentialsError",
-			message: "Please input a username or/and password",
-		});
-	}
-
 	try {
+		if (!username || !password) {
+			// const error = new Error("Please input a username and password");
+			// error.status = 400;
+			// throw error;
+			res.status(400).send({
+				error: "UnauthorizedError",
+				message: "Please input a username and password",
+				name: "UnauthorizedError",
+			});
+		}
+
 		const user = await getUserByUsername(username);
+
+		if (!user) {
+			// const error = new Error("User not found");
+			// error.status = 401;
+			// throw error;
+			res.status(400).send({
+				error: "UnauthorizedError",
+				message: "Please input a username",
+				name: "UnauthorizedError",
+			});
+		}
+
 		const hashedPassword = user.password;
 		const passwordsMatch = await bcrypt.compare(password, hashedPassword);
 
-		//*if condition true, create token for user
-		if (user && passwordsMatch) {
-			const token = jwt.sign(
-				{
-					id: user.id,
-					username,
-				},
-				JWT_SECRET
-			);
-			//*verify the token
-			const decode = jwt.verify(token, JWT_SECRET);
-
-			res.send({
-				user: {
-					id: user.id,
-					username: username,
-				},
-				token: token,
-				message: "you're logged in!",
-			});
-		} else {
-			next({
-				name: "IncorrectCredentialsError",
-				message: "Username or/and password is incorrect",
+		if (!passwordsMatch) {
+			// const error = new Error("Incorrect password");
+			// error.status = 401;
+			// throw error;
+			res.status(401).send({
+				error: "UnauthorizedError",
+				message: "Please input a password",
+				name: "UnauthorizedError",
 			});
 		}
-	} catch ({ name, message }) {
-		next({ name, message });
+
+		const token = jwt.sign(
+			{
+				id: user.id,
+				username,
+			},
+			JWT_SECRET
+		);
+
+		res.send({
+			user: {
+				id: user.id,
+				username: username,
+			},
+			token: token,
+			message: "you're logged in!",
+		});
+	} catch (error) {
+		next(error);
 	}
 });
 
@@ -127,6 +143,7 @@ usersRouter.post("/login", async (req, res, next) => {
 usersRouter.get("/me", requiredUser, async (req, res, next) => {
 	//*middleware func 'requiredUser' adds property 'user' to the 'req' obj with the decoded data from JWT token
 	const { id: userId } = req.user;
+
 	try {
 		//*'getuserbyid' func retrieves the user's info from the db using 'userId' value obtain from 'req' obj and sends the user's info back to client in response body
 		const user = await getUserById(userId);

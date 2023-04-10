@@ -38,3 +38,32 @@ app.js
 8.Export the app object for use in other modules
 This order is generally good practice, because it ensures that the middleware functions are applied before any routes or API handlers are defined. Additionally, the cors middleware function is loaded before the express.json() middleware function, which is important because cors can modify the request headers and it's best to apply it first.
 _/
+
+
+
+
+routinesRouter.delete("/:routineId", requiredUser, async (req, res, next) => {
+	const { routineId } = req.params;
+	const { id: userId, username } = req.user;
+
+	try {
+		const deleteRoutineId = await getRoutineById(routineId);
+		//*Check if routineId exists in DB and if logged in user matches 'creatorId', proceed
+		if (!deleteRoutineId || deleteRoutineId.creatorId !== userId) {
+			res.status(403).send({
+				error: "UnauthorizedDeleteError",
+				message: `${
+					!deleteRoutineId
+						? `Routine does not exist`
+						: `User ${username} is not allowed to delete ${deleteRoutineId.name}`
+				}`,
+				name: `${!deleteRoutineId ? "RoutineDoesNotExist" : "NotRoutineCreator"}`,
+			});
+		} else {
+			const destroy = await destroyRoutine(routineId);
+			res.send(destroy);
+		}
+	} catch ({ name, message }) {
+		next({ name, message });
+	}
+});

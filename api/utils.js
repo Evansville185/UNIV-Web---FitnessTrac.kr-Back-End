@@ -6,7 +6,7 @@ const { getUserById } = require("../db");
 const requiredUser = async (req, res, next) => {
 	//*Sets variable of header upon request
 	const authHeader = req.headers.authorization;
-
+	console.log("auth header", authHeader);
 	//*Sends error respons if request not sent with header
 	if (!authHeader) {
 		res.status(401).send({
@@ -36,6 +36,7 @@ const requiredUser = async (req, res, next) => {
 
 			//*Re-assigns 'user' value as 'req.user' for client request to be identified as logged in user
 			req.user = user;
+			console.log("REQ", req.user);
 			next();
 		} catch ({ name, message }) {
 			next({ name, message });

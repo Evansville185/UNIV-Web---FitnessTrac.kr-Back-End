@@ -88,6 +88,7 @@ async function getActivityByName(name) {
 async function attachActivitiesToRoutines(routines) {
 	const routineArray = [...routines];
 	const attach = routines.map((routine) => routine.id);
+
 	if (routines.length === 0) {
 		return;
 	}
