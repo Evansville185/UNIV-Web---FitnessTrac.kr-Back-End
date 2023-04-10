@@ -36,10 +36,13 @@ router.use((req, res) => {
 		name: "404 - PageNotFound",
 		message: "Invalid endpoint, navigate to a valid endpoint below...",
 		endpoints: [
-			{ title: "Users", url: "http://localhost:3000/api/users" },
-			{ title: "Activities", url: "http://localhost:3000/api/activities" },
-			{ title: "Routines", url: "http://localhost:3000/api/routines" },
-			{ title: "Routine Activities", url: "http://localhost:3000/api/routine_activities" },
+			{ title: "Users", url: "https://fitnesstrackr-be.onrender.com/api/users" },
+			{ title: "Activities", url: "https://fitnesstrackr-be.onrender.com/api/activities" },
+			{ title: "Routines", url: "https://fitnesstrackr-be.onrender.com/api/routines" },
+			{
+				title: "Routine Activities",
+				url: "https://fitnesstrackr-be.onrender.com/api/routine_activities",
+			},
 		],
 	});
 });
