@@ -36,12 +36,12 @@ router.use((req, res) => {
 		name: "404 - PageNotFound",
 		message: "Invalid endpoint, navigate to a valid endpoint below...",
 		endpoints: [
-			{ title: "Users", url: "https://fitnesstrackr-be.onrender.com/api/users" },
-			{ title: "Activities", url: "https://fitnesstrackr-be.onrender.com/api/activities" },
-			{ title: "Routines", url: "https://fitnesstrackr-be.onrender.com/api/routines" },
+			{ title: "Users", url: "https://fitnesstrackr-b-end.onrender.com/api/users" },
+			{ title: "Activities", url: "https://fitnesstrackr-b-end.onrender.com/api/activities" },
+			{ title: "Routines", url: "https://fitnesstrackr-b-end.onrender.com/api/routines" },
 			{
 				title: "Routine Activities",
-				url: "https://fitnesstrackr-be.onrender.com/api/routine_activities",
+				url: "https://fitnesstrackr-b-end.onrender.com/api/routine_activities",
 			},
 		],
 	});
